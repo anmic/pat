@@ -111,15 +111,14 @@ func New() *PatternServeMux {
 func (p *PatternServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, ph := range p.handlers[r.Method] {
 		if params, ok := ph.try(r.URL.Path); ok {
-<<<<<<< HEAD
 			if _, ok := params[":pat"]; !ok {
 				params.Set(":pat", ph.pat)
-=======
-			if len(params) > 0 && !ph.redirect {
-				r.URL.RawQuery = url.Values(params).Encode() + "&" + r.URL.RawQuery
->>>>>>> Handle slash redirects with variable substitution
 			}
-			r.URL.RawQuery = params.Encode() + "&" + r.URL.RawQuery
+
+			if !ph.redirect {
+				r.URL.RawQuery = params.Encode() + "&" + r.URL.RawQuery
+			}
+
 			ph.ServeHTTP(w, r)
 			return
 		}
