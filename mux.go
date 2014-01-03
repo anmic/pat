@@ -103,9 +103,10 @@ func New() *PatternServeMux {
 func (p *PatternServeMux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	for _, ph := range p.handlers[r.Method] {
 		if params, ok := ph.try(r.URL.Path); ok {
-			if len(params) > 0 {
-				r.URL.RawQuery = url.Values(params).Encode() + "&" + r.URL.RawQuery
+			if _, ok := params[":pat"]; !ok {
+				params.Set(":pat", ph.pat)
 			}
+			r.URL.RawQuery = params.Encode() + "&" + r.URL.RawQuery
 			ph.ServeHTTP(w, r)
 			return
 		}
